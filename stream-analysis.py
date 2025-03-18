@@ -180,3 +180,25 @@ query = deduplicated.writeStream \
        .start()
    
 query.awaitTermination()
+
+# 8. Windowing in Structured Streaming:
+# Apply windowing to the streaming DataFrame to calculate:
+# 8.1 - The average fare per hour, using a sliding window.
+# 8.2 - The peak hour with the highest number of trips, using a tumbling window.
+# Print the results of the windowing operations.
+
+# Average fare per hour using a sliding window
+avg_fare_sliding_window = parsed_stream \
+    .withColumn("pickup_datetime", col("pickup_datetime").cast("timestamp")) \
+    .groupBy(window(col("pickup_datetime"), "1 hour", "30 minutes")) \
+    .agg(avg(col("fare_amount").cast("double")).alias("average_fare"))
+ 
+
+query1 = avg_fare_sliding_window.writeStream \
+       .outputMode("complete")\
+       .format("console") \
+       .option("truncate","false")\
+       .start()
+   
+query1.awaitTermination()
+
