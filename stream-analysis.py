@@ -110,3 +110,20 @@ query = joined.writeStream \
        .start()
    
 query.awaitTermination()
+
+
+# 5. Handling Late and Out-of-Order Data:
+
+# Apply watermark and window aggregation
+watermarked_stream = parsed_stream \
+    .withWatermark("kafka_timestamp", "10 seconds")\
+
+
+query = watermarked_stream.writeStream \
+       .outputMode("append")\
+       .format("console") \
+       .option("truncate","false")\
+       .start()
+   
+query.awaitTermination()
+
