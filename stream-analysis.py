@@ -148,3 +148,19 @@ query1 = avg_fare_per_hour.writeStream \
        .start()
    
 query1.awaitTermination()
+
+
+# Calculate total trips per pickup zone
+
+total_trips_per_zone=joined.groupBy(col("zone_name")) \
+    .agg(count("*").alias("total_trips"))
+
+
+
+query2 = total_trips_per_zone.writeStream \
+       .outputMode("complete")\
+       .format("console") \
+       .option("truncate","false")\
+       .start()
+   
+query2.awaitTermination()
