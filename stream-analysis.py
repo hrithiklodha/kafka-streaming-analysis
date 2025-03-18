@@ -164,3 +164,19 @@ query2 = total_trips_per_zone.writeStream \
        .start()
    
 query2.awaitTermination()
+       
+       
+# 7. Deduplication in Structured Streaming:
+# Introduce duplicate records in the streaming DataFrame.
+# Use dropDuplicates or groupBy and agg functions to deduplicate the stream.
+# Verify the deduplication results.
+
+deduplicated = parsed_stream.dropDuplicates(["VendorID", "pickup_datetime"])
+
+query = deduplicated.writeStream \
+       .outputMode("append")\
+       .format("console") \
+       .option("truncate","false")\
+       .start()
+   
+query.awaitTermination()
