@@ -85,3 +85,28 @@ query = transformed.writeStream \
    
 query.awaitTermination()
 
+
+# 4. Joining Streaming Data:
+# Create a static DataFrame containing a list of taxi zones and their IDs.
+# Join the streaming DataFrame with the static DataFrame using the pickup zone ID.
+# Print the results of the join to understand how the data is combined.
+
+
+zone_schema = StructType([
+       StructField("zone_id", StringType()),
+       StructField("zone_name", StringType())
+   ])
+
+static_data = [("1", "Manhattan"), ("2", "Brooklyn")]
+static_df = spark.createDataFrame(static_data, schema=zone_schema)
+print("Static DataFrame:")
+static_df.show()
+joined = parsed_stream.join(static_df, parsed_stream["RateCodeID"] == static_df["zone_id"])
+
+query = joined.writeStream \
+       .outputMode("append")\
+       .format("console") \
+       .option("truncate","false")\
+       .start()
+   
+query.awaitTermination()
