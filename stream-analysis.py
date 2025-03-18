@@ -127,3 +127,24 @@ query = watermarked_stream.writeStream \
    
 query.awaitTermination()
 
+
+# 6. Basic Aggregation in Structured Streaming:
+# Aggregate the streaming DataFrame to calculate:
+# 6.2 - The average fare per hour.
+# 6.3 - The total number of trips per pickup zone.
+# 6.4 - Print the results of the aggregations.
+
+
+# Calculate the average fare per hour
+avg_fare_per_hour = parsed_stream \
+    .withColumn("pickup_datetime", col("pickup_datetime").cast("timestamp")) \
+    .groupBy(window(col("pickup_datetime"), "1 hour")) \
+    .agg(avg(col("fare_amount").cast("double")).alias("average_fare"))
+
+query1 = avg_fare_per_hour.writeStream \
+       .outputMode("complete")\
+       .format("console") \
+       .option("truncate","false")\
+       .start()
+   
+query1.awaitTermination()
